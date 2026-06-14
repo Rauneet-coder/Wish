@@ -199,19 +199,22 @@ class BalloonGame {
     this.particles = [];
     this.animationId = null;
     this.isRunning = false;
-    this.wishes = [
-      "Wishing you a year filled with laughter, love, and infinite coffee! ☕✨",
-      "May your gorgeous smile shine brighter than all the stars tonight. 🌟💖",
-      "To a girl who is a perfect combination of sugar, spice, and absolute class. 💅🔥",
-      "May every single dream you hold in your heart find its way to you. 🔮🎀",
-      "Wishing you infinite moments of joy and absolutely zero worries. ☀️🌸",
-      "Keep shining, keep smiling, and keep being your magical, sassy self! 🦄💫",
-      "You deserve the absolute best today and every single day of the year. 🎁❤️",
-      "May this brand new chapter be as gorgeous and radiant as you are. 🌹✨",
-      "Cheers to another year of slaying and making the world a brighter place. 🥂👑",
-      "A special birthday wish: May you always find happiness in the little things. 🎈🌈"
+    this.allWishes = [
+      "There's something about the way you laugh — it's honest, it's loud, and it makes everyone around you feel like everything's going to be okay. 🌿",
+      "You have this quiet strength that most people don't even notice, but I do. You handle things with so much grace it's almost unfair. 🍃",
+      "I've seen you stay kind even when the world gave you every reason not to be. That takes more courage than people realise. 🌙",
+      "You walk into a room and the energy just shifts — not because you try, but because you're genuinely that person. ☁️✨",
+      "The way you care about the little things — remembering small details, checking in on people — that's rare, and it matters more than you think. 🌷",
+      "I think what I admire most is that you never pretend to be someone you're not. In a world full of filters, you're refreshingly real. 🪴",
+      "You have this way of making even ordinary moments feel a little more alive. I don't think you even realise you do it. 🌤️",
+      "Some people light up a room. You light up the people in it. There's a difference, and you're the difference. 🕊️",
+      "You've grown so much this year and still stayed the same good-hearted person you've always been. That's not easy — and I respect that. 🌾",
+      "Happy Birthday to someone who deserves every good thing heading her way — and trust me, a lot of good things are heading your way. 🎂🤍"
     ];
+    this.maxPops = this.allWishes.length; // exactly 10
+    this.wishQueue = [];  // shuffled queue, assigned one per balloon
     this.poppedCount = 0;
+    this.isComplete = false;
     
     // Bind resize
     window.addEventListener('resize', () => this.resizeCanvas());
@@ -229,6 +232,16 @@ class BalloonGame {
     });
   }
 
+  // Fisher-Yates shuffle
+  shuffleArray(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
   resizeCanvas() {
     const parent = this.canvas.parentElement;
     this.canvas.width = parent.clientWidth;
@@ -237,10 +250,19 @@ class BalloonGame {
 
   start() {
     if (this.isRunning) return;
+    // If game was already completed, just keep the animation loop for particles but don't reset
+    if (this.isComplete) {
+      this.isRunning = true;
+      this.loop();
+      return;
+    }
     this.isRunning = true;
     this.balloons = [];
-    // Initially seed a few balloons
-    for (let i = 0; i < 5; i++) {
+    // Shuffle and build the wish queue fresh
+    this.wishQueue = this.shuffleArray(this.allWishes);
+    // Seed initial balloons (up to 5, or however many wishes remain)
+    const initialCount = Math.min(5, this.wishQueue.length);
+    for (let i = 0; i < initialCount; i++) {
       this.spawnBalloon(true); // spawn at random heights initially
     }
     this.loop();
@@ -252,6 +274,11 @@ class BalloonGame {
   }
 
   spawnBalloon(randomHeight = false) {
+    // Don't spawn if no wishes left in the queue
+    if (this.wishQueue.length === 0) return;
+
+    const wish = this.wishQueue.pop(); // take next unique wish
+
     const radius = 30 + Math.random() * 12;
     const x = radius + Math.random() * (this.canvas.width - radius * 2);
     const y = randomHeight ? (Math.random() * (this.canvas.height - 100) + 100) : (this.canvas.height + radius + 10);
@@ -269,11 +296,10 @@ class BalloonGame {
     ];
     
     const color = colors[Math.floor(Math.random() * colors.length)];
-    const wishIndex = this.balloons.length % this.wishes.length;
     
     this.balloons.push({
       x, y, radius, speed, wobbleSpeed, wobbleRange, angle, color,
-      wish: this.wishes[wishIndex],
+      wish: wish,
       baseX: x
     });
   }
@@ -295,6 +321,9 @@ class BalloonGame {
   }
 
   handlePress(x, y) {
+    // Don't allow pops if game is complete
+    if (this.isComplete) return;
+
     for (let i = this.balloons.length - 1; i >= 0; i--) {
       const b = this.balloons[i];
       // Circle distance check
@@ -311,9 +340,20 @@ class BalloonGame {
         
         this.onPop(poppedBalloon.wish);
         
-        // Spawn replace balloon from bottom
+        // Check if all 10 are popped
+        if (this.poppedCount >= this.maxPops) {
+          this.isComplete = true;
+          // Update hint text
+          const hint = document.getElementById('balloon-hint');
+          if (hint) hint.textContent = '🎉 You popped them all!';
+          return;
+        }
+        
+        // Spawn a replacement balloon only if wishes remain in the queue
         setTimeout(() => {
-          if (this.isRunning) this.spawnBalloon(false);
+          if (this.isRunning && this.wishQueue.length > 0) {
+            this.spawnBalloon(false);
+          }
         }, 800);
         
         break;
@@ -773,41 +813,48 @@ document.addEventListener('DOMContentLoaded', () => {
   btnOpenGift.addEventListener('click', openGiftBoxFlow);
   giftBox.addEventListener('click', openGiftBoxFlow);
 
-  // 4. Tab Navigation Router
+  // 4. Reusable Tab Switcher
+  const switchToTab = (tabId) => {
+    // Update nav styling
+    navItems.forEach(n => {
+      if (n.getAttribute('data-tab') === tabId) {
+        n.classList.add('active');
+      } else {
+        n.classList.remove('active');
+      }
+    });
+
+    // Manage game cycles
+    if (tabId === 'view-balloons') {
+      balloonGame.start();
+    } else {
+      balloonGame.stop();
+    }
+
+    if (tabId === 'view-cake') {
+      fireworks.stop();
+    }
+
+    // Transition panels
+    tabViews.forEach(view => {
+      if (view.id === tabId) {
+        view.classList.add('active');
+      } else {
+        view.classList.remove('active');
+      }
+    });
+
+    audio.playPopSound();
+  };
+
+  // 5. Tab Navigation Router (uses switchToTab)
   navItems.forEach(item => {
     item.addEventListener('click', () => {
-      const targetTab = item.getAttribute('data-tab');
-      
-      // Set active nav styling
-      navItems.forEach(n => n.classList.remove('active'));
-      item.classList.add('active');
-      
-      // Manage game cycles to save performance
-      if (targetTab === 'view-balloons') {
-        balloonGame.start();
-      } else {
-        balloonGame.stop();
-      }
-      
-      if (targetTab === 'view-cake') {
-        // Stop any running fireworks overlay when opening
-        fireworks.stop();
-      }
-      
-      // Transition panels
-      tabViews.forEach(view => {
-        if (view.id === targetTab) {
-          view.classList.add('active');
-        } else {
-          view.classList.remove('active');
-        }
-      });
-      
-      audio.playPopSound(); // subtle selection sound
+      switchToTab(item.getAttribute('data-tab'));
     });
   });
 
-  // 5. Instantiating Balloon pop game
+  // 6. Instantiating Balloon pop game
   const wishesRevealCard = document.getElementById('wishes-display-card');
   const wishTextContent = document.getElementById('wish-text-content');
   const closeWishCard = document.getElementById('close-wish-card');
@@ -821,9 +868,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   closeWishCard.addEventListener('click', () => {
     wishesRevealCard.classList.add('hidden');
-    // Resume floating balloons
-    balloonGame.start();
     audio.playPopSound();
+
+    // If all balloons popped, auto-switch to next tab after a short pause
+    if (balloonGame.isComplete) {
+      setTimeout(() => {
+        switchToTab('view-memories');
+      }, 600);
+    } else {
+      // Resume floating balloons
+      balloonGame.start();
+    }
   });
 
   // 6. Instantiating Memory gallery
