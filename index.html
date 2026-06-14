@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Happy Birthday, Princess! ✨</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Desktop Ambient Blur Background -->
+  <div class="ambient-bg"></div>
+
+  <!-- Main Phone Container -->
+  <div class="phone-container">
+    
+    <!-- Audio Control Toggle (Floating) -->
+    <button id="audio-toggle" class="audio-btn hidden" aria-label="Toggle Music">
+      <svg class="icon-play" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+      <svg class="icon-mute hidden" viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+    </button>
+
+    <!-- SCREEN 1: THE GIFT BOX (ENTRY) -->
+    <div id="screen-entry" class="screen active">
+      <div class="stars-overlay"></div>
+      <div class="entry-content">
+        <h1 class="entry-title font-cursive">For the Birthday Girl</h1>
+        <p class="entry-subtitle">A little box of magic awaits you...</p>
+        
+        <div class="gift-box-wrapper">
+          <div class="gift-box" id="gift-box">
+            <div class="gift-lid">
+              <div class="lid-ribbon-v"></div>
+              <div class="lid-ribbon-h"></div>
+              <div class="gift-bow"></div>
+            </div>
+            <div class="gift-body">
+              <div class="body-ribbon-v"></div>
+              <div class="body-ribbon-h"></div>
+            </div>
+          </div>
+        </div>
+
+        <button id="btn-open-gift" class="btn btn-primary btn-glow">Unwrap Your Gift</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 2: MAIN DASHBOARD -->
+    <div id="screen-main" class="screen">
+      <!-- Main Dashboard Header -->
+      <header class="app-header">
+        <span class="decor-sparkle left">✨</span>
+        <h1 class="header-title font-cursive">Happy Birthday!</h1>
+        <span class="decor-sparkle right">💖</span>
+      </header>
+
+      <!-- App Content Container (Tab Switcher) -->
+      <main class="app-content">
+        
+        <!-- Tab 1: Balloon Pop Game -->
+        <section id="view-balloons" class="tab-view active">
+          <div class="view-header">
+            <h2 class="view-title">Pop the Balloons! 🎈</h2>
+            <p class="view-desc">Tap the floating balloons to release sweet wishes.</p>
+            <div class="balloon-counter-badge">
+              Popped: <span id="popped-count">0</span>/<span id="total-balloons-needed">10</span>
+            </div>
+          </div>
+          <div id="balloon-game-container">
+            <!-- Canvas or dynamic divs for balloons will be generated here -->
+            <canvas id="balloon-canvas"></canvas>
+            <div id="balloon-hint" class="action-hint">Tap floating balloons!</div>
+          </div>
+          <div id="wishes-display-card" class="wish-reveal-card hidden">
+            <div class="wish-card-inner">
+              <span class="wish-card-icon">💌</span>
+              <p id="wish-text-content">A magical wish just for you...</p>
+              <button id="close-wish-card" class="btn btn-small">Keep Popping</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab 2: Polaroid Scrapbook -->
+        <section id="view-memories" class="tab-view">
+          <div class="view-header">
+            <h2 class="view-title">Memory Lane 📸</h2>
+            <p class="view-desc">Tap or swipe the polaroids to step through our favourite chapters.</p>
+          </div>
+          <div class="polaroid-gallery">
+            <div class="polaroid-stack" id="polaroid-stack">
+              <!-- Memory Polaroids will be dynamically injected here to allow simple custom additions -->
+            </div>
+          </div>
+          <div class="gallery-controls">
+            <button id="btn-prev-polaroid" class="btn-circle" aria-label="Previous">
+              <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <span class="gallery-counter"><span id="current-polaroid-idx">1</span> / <span id="total-polaroids-count">4</span></span>
+            <button id="btn-next-polaroid" class="btn-circle" aria-label="Next">
+              <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </div>
+        </section>
+
+        <!-- Tab 3: Compliment Spinner -->
+        <section id="view-compliments" class="tab-view">
+          <div class="view-header">
+            <h2 class="view-title">Magic Mirror 🔮</h2>
+            <p class="view-desc">Need a reminder of how amazing you are? Spin the magic wheel!</p>
+          </div>
+          <div class="spinner-container">
+            <div class="magic-crystal" id="magic-crystal">
+              <div class="crystal-core">✨</div>
+              <div class="crystal-ring ring-1"></div>
+              <div class="crystal-ring ring-2"></div>
+              <div class="crystal-ring ring-3"></div>
+            </div>
+            <div class="compliment-box" id="compliment-box">
+              <p class="compliment-placeholder">Ask the mirror what it thinks of you...</p>
+              <p class="compliment-text hidden" id="compliment-text"></p>
+            </div>
+            <button id="btn-spin-compliment" class="btn btn-primary btn-glow">Spin the Magic</button>
+          </div>
+        </section>
+
+        <!-- Tab 4: Cake & Candle Blow -->
+        <section id="view-cake" class="tab-view">
+          <div class="view-header">
+            <h2 class="view-title">Make a Wish 🎂</h2>
+            <p class="view-desc">Make a silent wish, then tap the candle to blow it out.</p>
+          </div>
+          <div class="cake-container">
+            <div class="cake-wrapper">
+              <div class="cake-stand"></div>
+              <div class="cake-body">
+                <div class="cake-cream-drips"></div>
+                <div class="cake-strawberry-toppers">
+                  <div class="berry"></div>
+                  <div class="berry"></div>
+                  <div class="berry"></div>
+                </div>
+              </div>
+              <div class="candle" id="birthday-candle">
+                <div class="candle-wick"></div>
+                <div class="candle-flame active" id="candle-flame">
+                  <div class="flame-inner"></div>
+                </div>
+              </div>
+            </div>
+            <div class="cake-status-message" id="cake-status">
+              🕯️ Tap the flame to blow it out!
+            </div>
+          </div>
+
+          <!-- The Final Letter overlay, triggered after blowing candle -->
+          <div id="final-letter-overlay" class="letter-overlay hidden">
+            <div class="letter-paper">
+              <div class="letter-wax-seal">❤️</div>
+              <div class="letter-content">
+                <h3 class="letter-title font-cursive">To the Most Special Girl...</h3>
+                <p>Happy Birthday! Today is all about celebrating you—your laugh, your kindness, your sass, and the incredible light you bring into the lives of everyone around you.</p>
+                <p>May this year bring you endless reasons to smile, beautiful adventures, and all the dreams your heart desires.</p>
+                <p>Thank you for being exactly who you are: simply wonderful.</p>
+                <p class="letter-signature font-cursive">With all my love,</p>
+                <p class="letter-signature-name">Your Special Someone</p>
+              </div>
+              <button id="btn-restart-celebration" class="btn btn-small btn-secondary">Celebrate Again 🔄</button>
+            </div>
+            <canvas id="fireworks-canvas"></canvas>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- App Bottom Navigation Bar -->
+      <nav class="bottom-nav">
+        <button class="nav-item active" data-tab="view-balloons" aria-label="Pop Balloons">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 2a4 4 0 0 1 4 4c0 2.5-3 6-4 8-1-2-4-5.5-4-8a4 4 0 0 1 4-4Z"></path><path d="M12 14v4"></path><path d="M12 18a2 2 0 0 0-2 2"></path></svg>
+          <span class="nav-label">Balloons</span>
+        </button>
+        <button class="nav-item" data-tab="view-memories" aria-label="Memories">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+          <span class="nav-label">Memories</span>
+        </button>
+        <button class="nav-item" data-tab="view-compliments" aria-label="Compliments">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+          <span class="nav-label">Mirror</span>
+        </button>
+        <button class="nav-item" data-tab="view-cake" aria-label="Blow Candle">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span class="nav-label">Wish</span>
+        </button>
+      </nav>
+    </div>
+
+  </div>
+
+  <script src="scripts.js"></script>
+</body>
+</html>
